@@ -1,4 +1,4 @@
 all:
-	g++ -o spider.out spider.cpp -lglut -lGLU -lGL -lm
+	g++ -o spider spider.cpp -lglut -lGLU -lGL -lm
 clean:
-	rm *.out
+	rm spider
