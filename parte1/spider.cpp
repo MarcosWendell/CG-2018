@@ -4,6 +4,7 @@
 #include<iostream>
 
 #define LINE_SIZE 1
+#define ANIMATION_SPEED 10
 
 using namespace std;
 
@@ -39,19 +40,22 @@ GLint attachPoints[] = {6,2,89,86,39,43,46,49};
 
 vector<bodyPart> body; 
 vector<leg> legs;
+point dest;
 
 
-GLint WINDOW_WIDTH  = 500,
-      WINDOW_HEIGHT = 500;
+GLint WINDOW_WIDTH  = 700,
+      WINDOW_HEIGHT = 700;
 
 
 void init();
 void display();
+void mouse(GLint, GLint, GLint, GLint);
 
 void build_body();
 void build_legs();
 void draw_legs();
 void draw_body();
+void move(GLint);
 
 int main(int argc, char *argv[]){
 
@@ -67,6 +71,7 @@ int main(int argc, char *argv[]){
 
   	init();
   	glutDisplayFunc(display);
+  	glutMouseFunc(mouse);
 
   	glutMainLoop();
 
@@ -88,6 +93,14 @@ void display(){
 	draw_legs();
 	draw_body();
 	glFlush();
+}
+
+void mouse(GLint button, GLint action, GLint x, GLint y){
+	if(action == GLUT_DOWN && button == GLUT_LEFT_BUTTON){
+		dest.x = x-350;
+		dest.y = y;
+		glutTimerFunc(ANIMATION_SPEED,&move,0);
+	}
 }
 
 void build_body(){
@@ -145,4 +158,9 @@ void draw_body(){
 				glVertex2f(body[i][j].x, body[i][j].y);
 		glEnd();
 	}
+}
+
+void move(GLint step){
+	glTranslatef(dest.x,dest.y,0);
+	glutPostRedisplay();
 }
