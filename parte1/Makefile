@@ -1,4 +1,4 @@
 all:
-	g++ -o spider spider.cpp -lglut -lGLU -lGL -lm -I ./
+	g++ -o spider -std=c++11 spider.cpp -lglut -lGLU -lGL -lm -I ./
 clean:
 	rm spider

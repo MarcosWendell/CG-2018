@@ -27,9 +27,16 @@ void build_legs();
 void draw_legs();
 void draw_body();
 
+void rotate_spider(GLint);
+
+#define matRotate(a,x,y) {cos(a),sin(a),0,0,-sin(a),cos(a),0,0,0,0,1,0,x-x*cos(a)+y*sin(a),y-y*cos(a)-x*sin(a),0,1}
 
 #define norm(a) sqrt(a.x*a.x+a.y*a.y) 
-#define dot(a,b) a.x*b.x+a.y*b.y
+#define dot(a,b) (a.x*b.x+a.y*b.y)
+#define vecprod(a,b) (a.x*b.y-a.y*b.x)
+
+#define ROTATE_STEP_SIZE (M_PI/180)
+#define CIRCLE_POINTS 90
 
 #define LINE_SIZE 1
 #define ANIMATION_SPEED 10

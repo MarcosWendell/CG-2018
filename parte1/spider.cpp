@@ -117,14 +117,13 @@ void mouse(GLint button, GLint action, GLint x, GLint y){
 	if(action == GLUT_DOWN && button == GLUT_LEFT_BUTTON && canWalk){
 		x = x - WINDOW_WIDTH/2;
 		y = WINDOW_HEIGHT/2 - y;
-//		canWalk = false;
+		canWalk = false;
 		vec2D aux;
 		aux.x = x - center.x;
 		aux.y = y - center.y;
-		GLfloat a = dot(aux,orientation);
-		finalAngle = acos(dot(aux,orientation)/norm(aux)/norm(orientation));
-		cout<<finalAngle<<"\n";
-//		glutTimerFunc(ANIMATION_SPEED,&rotate,0);
+		finalAngle = acos(dot(aux,orientation)/(norm(aux)*norm(orientation)));
+		finalAngle = vecprod(aux,orientation)>0?-finalAngle:finalAngle;
+		glutTimerFunc(ANIMATION_SPEED,&rotate_spider,abs(finalAngle/ROTATE_STEP_SIZE));
 	}
 }
 
@@ -182,5 +181,34 @@ void draw_body(){
 			for(int j = 0; j < body[i].size(); j++)
 				glVertex2f(body[i][j].x, body[i][j].y);
 		glEnd();
+	}
+}
+
+void rotate_spider(GLint step){
+	GLfloat rotate_step = finalAngle>0?ROTATE_STEP_SIZE:-ROTATE_STEP_SIZE;
+	GLfloat mat[16] = matRotate(rotate_step,0,0);
+	
+	GLfloat aux;
+	for(int i = 0 ; i < NUMBER_OF_BODY_PARTS; i++)
+		for(int j = 0 ; j < CIRCLE_POINTS; j++){
+			aux = body[i][j].x;
+			body[i][j].x = aux*mat[0] + body[i][j].y*mat[4] + mat[12];
+			body[i][j].y = aux*mat[1] + body[i][j].y*mat[5] + mat[13];
+		}
+	for(int i = 0; i < NUMBER_OF_LEGS; i++)
+		for(int j = 0; j < NUMBER_OF_ARTICULATIONS+1; j++){
+			aux = legs[i].articulations[j].x;
+			legs[i].articulations[j].x = aux*mat[0] + legs[i].articulations[j].y*mat[4] + mat[12];
+			legs[i].articulations[j].y = aux*mat[1] + legs[i].articulations[j].y*mat[5] + mat[13];
+		}
+	glutPostRedisplay();
+	aux = orientation.x;
+	orientation.x = aux*mat[0] + orientation.y*mat[4];
+	orientation.y = aux*mat[1] + orientation.y*mat[5];
+	if( step > 0 )
+		glutTimerFunc(ANIMATION_SPEED,&rotate_spider,--step);
+	else{
+		cout<<orientation.x<<" "<<orientation.y<<"\n";
+		canWalk = true;
 	}
 }
