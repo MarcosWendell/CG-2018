@@ -6,44 +6,7 @@
 
 using namespace std;
 
-/*
-#define LINE_SIZE 1
-#define ANIMATION_SPEED 10
-#define norm(a) sqrt(a.x*a.x+a.y*a.y) 
-#define dot(a,b) a.x*b.x+a.y*b.y
 
-typedef struct{
-	GLfloat x,y;
-}point;//estrutura de um ponto
-
-typedef point vec2D;
-
-typedef struct{
-	vector<point> articulations;
-	GLint attachment;
-}leg;//cada perna tem pontos de articulacao e um local que se liga ao corpo
-
-typedef	vector<point> bodyPart;
-
-#define NUMBER_OF_BODY_PARTS 4
-
-GLint bodyPartX[] = {0,0,-5,5},
-	  bodyPartY[] = {0,-75,20,20};
-
-GLint bodyPartSizesX[] = {30,45,4,4},
-	  bodyPartSizesY[] = {30,45,8,8};
-
-#define NUMBER_OF_LEGS 8
-#define NUMBER_OF_ARTICULATIONS 1
-
-GLint legsX[][8] = {{50,55,52,49,-50,-55,-52,-49},
-				    {75,74,71,95,-75,-74,-71,-95}},
-	  legsY[][8] = {{100,12,5,-2,100,12,5,-2},
-			     	{120,-40,-47,-130,120,-40,-47,-130}};
-
-
-GLint attachPoints[] = {6,2,89,86,39,43,46,49};
-*/
 GLint bodyPartX[NUMBER_OF_BODY_PARTS] = {CEPHALOTHORAX_X, ABDOMEN_X, LEFT_EYE_X, RIGHT_EYE_X},
 	  bodyPartY[NUMBER_OF_BODY_PARTS] = {CEPHALOTHORAX_Y, ABDOMEN_Y, LEFT_EYE_Y, RIGHT_EYE_Y};
 
@@ -57,6 +20,9 @@ GLint legsX[NUMBER_OF_ARTICULATIONS + 1][NUMBER_OF_LEGS] = { {LEG_1_P1_X, LEG_2_
 
 GLint attachPoints[NUMBER_OF_LEGS] = {LEG_1_ATTACH_POINT, LEG_2_ATTACH_POINT, LEG_3_ATTACH_POINT, LEG_4_ATTACH_POINT, LEG_5_ATTACH_POINT, LEG_6_ATTACH_POINT, LEG_7_ATTACH_POINT, LEG_8_ATTACH_POINT};
 
+GLfloat legs_animation[NUMBER_OF_ARTICULATIONS+1][NUMBER_OF_LEGS] = { {LEG_1_P1_ROTATION, LEG_2_P1_ROTATION, LEG_3_P1_ROTATION, LEG_4_P1_ROTATION, LEG_5_P1_ROTATION, LEG_6_P1_ROTATION, LEG_7_P1_ROTATION, LEG_8_P1_ROTATION} ,
+															          {LEG_1_P2_ROTATION, LEG_2_P2_ROTATION, LEG_3_P2_ROTATION, LEG_4_P2_ROTATION, LEG_5_P2_ROTATION, LEG_6_P2_ROTATION, LEG_7_P2_ROTATION, LEG_8_P2_ROTATION} };
+
 vector<bodyPart> body; 
 vector<leg> legs;
 bool canWalk;
@@ -64,6 +30,8 @@ bool canWalk;
 vec2D orientation;
 point center;
 GLfloat finalAngle;
+GLint steps;
+point dest;
 
 GLint WINDOW_WIDTH  = 700,
       WINDOW_HEIGHT = 700;
@@ -102,6 +70,9 @@ void init(){
 	canWalk = true;
 	orientation.x = CEPHALOTHORAX_X - ABDOMEN_X;
 	orientation.y = CEPHALOTHORAX_Y - ABDOMEN_Y;
+	GLfloat aux = norm(orientation);
+	orientation.x /= aux;
+	orientation.y /= aux;
 	center.x = CEPHALOTHORAX_X;
 	center.y = CEPHALOTHORAX_Y;
 }
@@ -121,9 +92,17 @@ void mouse(GLint button, GLint action, GLint x, GLint y){
 		vec2D aux;
 		aux.x = x - center.x;
 		aux.y = y - center.y;
+		steps =(int) norm(aux)+1;
 		finalAngle = acos(dot(aux,orientation)/(norm(aux)*norm(orientation)));
 		finalAngle = vecprod(aux,orientation)>0?-finalAngle:finalAngle;
 		glutTimerFunc(ANIMATION_SPEED,&rotate_spider,abs(finalAngle/ROTATE_STEP_SIZE));
+		for(int i = 0; i < NUMBER_OF_LEGS; i++)
+			move_legs(body[0][legs[i].attachment].x,body[0][legs[i].attachment].y,0,i);
+		aux = orientation;
+		orientation.x = aux.x*cos(finalAngle) - aux.y*sin(finalAngle);
+		orientation.y = aux.x*sin(finalAngle) + aux.y*cos(finalAngle);
+		dest.x = x;
+		dest.y = y;
 	}
 }
 
@@ -186,29 +165,65 @@ void draw_body(){
 
 void rotate_spider(GLint step){
 	GLfloat rotate_step = finalAngle>0?ROTATE_STEP_SIZE:-ROTATE_STEP_SIZE;
-	GLfloat mat[16] = matRotate(rotate_step,0,0);
+	GLfloat mat[9] = matRotate(rotate_step,center.x,center.y);
 	
 	GLfloat aux;
 	for(int i = 0 ; i < NUMBER_OF_BODY_PARTS; i++)
 		for(int j = 0 ; j < CIRCLE_POINTS; j++){
 			aux = body[i][j].x;
-			body[i][j].x = aux*mat[0] + body[i][j].y*mat[4] + mat[12];
-			body[i][j].y = aux*mat[1] + body[i][j].y*mat[5] + mat[13];
+			body[i][j].x = aux*mat[0] + body[i][j].y*mat[3] + mat[6];
+			body[i][j].y = aux*mat[1] + body[i][j].y*mat[4] + mat[7];
 		}
 	for(int i = 0; i < NUMBER_OF_LEGS; i++)
 		for(int j = 0; j < NUMBER_OF_ARTICULATIONS+1; j++){
 			aux = legs[i].articulations[j].x;
-			legs[i].articulations[j].x = aux*mat[0] + legs[i].articulations[j].y*mat[4] + mat[12];
-			legs[i].articulations[j].y = aux*mat[1] + legs[i].articulations[j].y*mat[5] + mat[13];
+			legs[i].articulations[j].x = aux*mat[0] + legs[i].articulations[j].y*mat[3] + mat[6];
+			legs[i].articulations[j].y = aux*mat[1] + legs[i].articulations[j].y*mat[4] + mat[7];
 		}
 	glutPostRedisplay();
-	aux = orientation.x;
-	orientation.x = aux*mat[0] + orientation.y*mat[4];
-	orientation.y = aux*mat[1] + orientation.y*mat[5];
 	if( step > 0 )
-		glutTimerFunc(ANIMATION_SPEED,&rotate_spider,--step);
+		glutTimerFunc(ANIMATION_SPEED,&rotate_spider,step-1);
 	else{
-		cout<<orientation.x<<" "<<orientation.y<<"\n";
+		glutTimerFunc(ANIMATION_SPEED,&translate_spider,steps);
+		center.x = dest.x;
+		center.y = dest.y;
+	}
+}
+
+void translate_spider(GLint step){
+	GLfloat mat[9] = matTranslate(orientation.x,orientation.y);
+	
+	GLfloat aux;
+	for(int i = 0 ; i < NUMBER_OF_BODY_PARTS; i++)
+		for(int j = 0 ; j < CIRCLE_POINTS; j++){
+			aux = body[i][j].x;
+			body[i][j].x = aux*mat[0] + body[i][j].y*mat[3] + mat[6];
+			body[i][j].y = aux*mat[1] + body[i][j].y*mat[4] + mat[7];
+		}
+	for(int i = 0; i < NUMBER_OF_LEGS; i++)
+		for(int j = 0; j < NUMBER_OF_ARTICULATIONS+1; j++){
+			aux = legs[i].articulations[j].x;
+			legs[i].articulations[j].x = aux*mat[0] + legs[i].articulations[j].y*mat[3] + mat[6];
+			legs[i].articulations[j].y = aux*mat[1] + legs[i].articulations[j].y*mat[4] + mat[7];
+		}
+	glutPostRedisplay();
+	if( step > 0 )
+		glutTimerFunc(ANIMATION_SPEED,&translate_spider,step-1);
+	else{
 		canWalk = true;
 	}
+}
+void move_legs(GLfloat x, GLfloat y, int step, int current_leg){
+	if(step == NUMBER_OF_ARTICULATIONS+1)
+		return;
+	GLfloat mat[9] = matRotate(legs_animation[step][current_leg], x, y);
+	GLfloat aux;
+
+	for(int j = step; j < NUMBER_OF_ARTICULATIONS+1; j++){
+		aux = legs[current_leg].articulations[j].x;
+		legs[current_leg].articulations[j].x = aux*mat[0] + legs[current_leg].articulations[j].y*mat[3] + mat[6];
+		legs[current_leg].articulations[j].y = aux*mat[1] + legs[current_leg].articulations[j].y*mat[4] + mat[7];
+	}
+
+	move_legs(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg);
 }
