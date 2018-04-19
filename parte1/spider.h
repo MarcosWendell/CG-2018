@@ -29,9 +29,12 @@ void draw_body();
 
 void rotate_spider(GLint);
 void translate_spider(GLint);
-void move_legs(GLfloat, GLfloat, int, int);
+void move_legs();
+void move_leg1(GLfloat, GLfloat, int, int, bool);
+void move_leg2(GLfloat, GLfloat, int, int, bool);
 
 #define matRotate(a,x,y) {cos(a),sin(a),0,-sin(a),cos(a),0,x-x*cos(a)+y*sin(a),y-y*cos(a)-x*sin(a),1}
+#define matRotateAndScale(a,x,y,s) {s*cos(a),s*sin(a),0,-s*sin(a),s*cos(a),0,x-s*x*cos(a)+s*y*sin(a),y-s*y*cos(a)-s*x*sin(a),1}
 #define matTranslate(x,y) {1,0,0,0,1,0,x,y,1}
 
 #define norm(a) sqrt(a.x*a.x+a.y*a.y) 
@@ -44,6 +47,7 @@ void move_legs(GLfloat, GLfloat, int, int);
 
 #define LINE_SIZE 1
 #define ANIMATION_SPEED 10
+#define ANIMATION_STEPS 30
 
 
 
@@ -79,64 +83,111 @@ void move_legs(GLfloat, GLfloat, int, int);
 #define LEG_1_P2_X 75
 #define LEG_1_P2_Y 120
 #define LEG_1_ATTACH_POINT 6
-#define LEG_1_P1_ROTATION 10*ROTATE_STEP_SIZE
-#define LEG_1_P2_ROTATION 20*ROTATE_STEP_SIZE
+#define LEG_1_P1_ROTATION1 10*ROTATE_STEP_SIZE
+#define LEG_1_P2_ROTATION1 20*ROTATE_STEP_SIZE
+#define LEG_1_P1_ROTATION2 -10*ROTATE_STEP_SIZE
+#define LEG_1_P2_ROTATION2 10*ROTATE_STEP_SIZE
+#define LEG_1_P1_SCALE1 0.8
+#define LEG_1_P2_SCALE1 1.1
+#define LEG_1_P1_SCALE2 0.5
+#define LEG_1_P2_SCALE2 1
 
 #define LEG_2_P1_X 55
 #define LEG_2_P1_Y 12
 #define LEG_2_P2_X 74
 #define LEG_2_P2_Y -40
 #define LEG_2_ATTACH_POINT 2
-#define LEG_2_P1_ROTATION 0
-#define LEG_2_P2_ROTATION 0
+#define LEG_2_P1_ROTATION1 -20*ROTATE_STEP_SIZE
+#define LEG_2_P2_ROTATION1 25*ROTATE_STEP_SIZE
+#define LEG_2_P1_ROTATION2 20*ROTATE_STEP_SIZE
+#define LEG_2_P2_ROTATION2 10*ROTATE_STEP_SIZE
+#define LEG_2_P1_SCALE1 1
+#define LEG_2_P2_SCALE1 0.3
+#define LEG_2_P1_SCALE2 1
+#define LEG_2_P2_SCALE2 0.4
 
 #define LEG_3_P1_X 52
 #define LEG_3_P1_Y 5
 #define LEG_3_P2_X 71
 #define LEG_3_P2_Y -47
 #define LEG_3_ATTACH_POINT 89
-#define LEG_3_P1_ROTATION 0
-#define LEG_3_P2_ROTATION 0
+#define LEG_3_P1_ROTATION1 -20*ROTATE_STEP_SIZE
+#define LEG_3_P2_ROTATION1 35*ROTATE_STEP_SIZE
+#define LEG_3_P1_ROTATION2 -30*ROTATE_STEP_SIZE
+#define LEG_3_P2_ROTATION2 20*ROTATE_STEP_SIZE
+#define LEG_3_P1_SCALE1 1
+#define LEG_3_P2_SCALE1 0.5
+#define LEG_3_P1_SCALE2 1
+#define LEG_3_P2_SCALE2 0.6
 
 #define LEG_4_P1_X 49
 #define LEG_4_P1_Y -2
 #define LEG_4_P2_X 95
 #define LEG_4_P2_Y -130
 #define LEG_4_ATTACH_POINT 86
-#define LEG_4_P1_ROTATION 0
-#define LEG_4_P2_ROTATION 0
+#define LEG_4_P1_ROTATION1 -45*ROTATE_STEP_SIZE
+#define LEG_4_P2_ROTATION1 30*ROTATE_STEP_SIZE
+#define LEG_4_P1_ROTATION2 -20*ROTATE_STEP_SIZE
+#define LEG_4_P2_ROTATION2 8*ROTATE_STEP_SIZE
+#define LEG_4_P1_SCALE1 1
+#define LEG_4_P2_SCALE1 0.75
+#define LEG_4_P1_SCALE2 1
+#define LEG_4_P2_SCALE2 0.5
 
 #define LEG_5_P1_X -50
 #define LEG_5_P1_Y 100
 #define LEG_5_P2_X -75
 #define LEG_5_P2_Y 120
 #define LEG_5_ATTACH_POINT 39
-#define LEG_5_P1_ROTATION 10*ROTATE_STEP_SIZE
-#define LEG_5_P2_ROTATION 20*ROTATE_STEP_SIZE
+#define LEG_5_P1_ROTATION1 10*ROTATE_STEP_SIZE
+#define LEG_5_P2_ROTATION1 -10*ROTATE_STEP_SIZE
+#define LEG_5_P1_ROTATION2 -10*ROTATE_STEP_SIZE
+#define LEG_5_P2_ROTATION2 -20*ROTATE_STEP_SIZE
+#define LEG_5_P1_SCALE1 0.5
+#define LEG_5_P2_SCALE1 1
+#define LEG_5_P1_SCALE2 0.8
+#define LEG_5_P2_SCALE2 1.1
 
 #define LEG_6_P1_X -55
 #define LEG_6_P1_Y 12
 #define LEG_6_P2_X -74
 #define LEG_6_P2_Y -40
 #define LEG_6_ATTACH_POINT 43
-#define LEG_6_P1_ROTATION 0
-#define LEG_6_P2_ROTATION 0
+#define LEG_6_P1_ROTATION1 -20*ROTATE_STEP_SIZE
+#define LEG_6_P2_ROTATION1 -10*ROTATE_STEP_SIZE
+#define LEG_6_P1_ROTATION2 20*ROTATE_STEP_SIZE
+#define LEG_6_P2_ROTATION2 -25*ROTATE_STEP_SIZE
+#define LEG_6_P1_SCALE1 1
+#define LEG_6_P2_SCALE1 0.4
+#define LEG_6_P1_SCALE2 1
+#define LEG_6_P2_SCALE2 0.3
 
 #define LEG_7_P1_X -52
 #define LEG_7_P1_Y 5
 #define LEG_7_P2_X -71
 #define LEG_7_P2_Y -47
 #define LEG_7_ATTACH_POINT 46
-#define LEG_7_P1_ROTATION 0
-#define LEG_7_P2_ROTATION 0
+#define LEG_7_P1_ROTATION1 30*ROTATE_STEP_SIZE
+#define LEG_7_P2_ROTATION1 -20*ROTATE_STEP_SIZE
+#define LEG_7_P1_ROTATION2 20*ROTATE_STEP_SIZE
+#define LEG_7_P2_ROTATION2 -35*ROTATE_STEP_SIZE
+#define LEG_7_P1_SCALE1 1
+#define LEG_7_P2_SCALE1 0.6
+#define LEG_7_P1_SCALE2 1
+#define LEG_7_P2_SCALE2 0.5
 
 #define LEG_8_P1_X -49
 #define LEG_8_P1_Y -2
 #define LEG_8_P2_X -95
 #define LEG_8_P2_Y -130
 #define LEG_8_ATTACH_POINT 49
-#define LEG_8_P1_ROTATION 0
-#define LEG_8_P2_ROTATION 0
+#define LEG_8_P1_ROTATION1 20*ROTATE_STEP_SIZE
+#define LEG_8_P2_ROTATION1 -8*ROTATE_STEP_SIZE
+#define LEG_8_P1_ROTATION2 45*ROTATE_STEP_SIZE
+#define LEG_8_P2_ROTATION2 -30*ROTATE_STEP_SIZE
+#define LEG_8_P1_SCALE1 1
+#define LEG_8_P2_SCALE1 0.5
+#define LEG_8_P1_SCALE2 1
+#define LEG_8_P2_SCALE2 0.75
 
 #endif
-//10 rotação primeira perna
