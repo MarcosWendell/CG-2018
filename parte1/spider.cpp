@@ -35,12 +35,13 @@ bool canWalk;
 vec2D orientation;
 point center;
 GLfloat finalAngle;
-int steps;
+int translationSteps;
 point dest;
+
 int animationStep = 0;
 int animationSpeed = 1;
-bool gg;
-void (*move_leg)(GLfloat,GLfloat,int,int,bool) = &move_leg2;
+bool invertTransformation;
+int transformOption = 1;
 
 GLint WINDOW_WIDTH  = 700,
       WINDOW_HEIGHT = 700;
@@ -101,7 +102,7 @@ void mouse(GLint button, GLint action, GLint x, GLint y){
 		vec2D aux;
 		aux.x = x - center.x;
 		aux.y = y - center.y;
-		steps =(int) norm(aux)+1;
+		translationSteps =(int) norm(aux)+1;
 		finalAngle = acos(dot(aux,orientation)/(norm(aux)*norm(orientation)));
 		finalAngle = vecprod(aux,orientation)>0?-finalAngle:finalAngle;
 		glutTimerFunc(ANIMATION_SPEED,&rotate_spider,abs(finalAngle/ROTATE_STEP_SIZE));
@@ -194,7 +195,7 @@ void rotate_spider(GLint step){
 	if( step > 0 )
 		glutTimerFunc(ANIMATION_SPEED,&rotate_spider,step-1);
 	else{
-		glutTimerFunc(ANIMATION_SPEED,&translate_spider,steps);
+		glutTimerFunc(ANIMATION_SPEED,&translate_spider,translationSteps);
 		center.x = dest.x;
 		center.y = dest.y;
 	}
@@ -216,40 +217,50 @@ void translate_spider(GLint step){
 			legs[i].articulations[j].x = aux*mat[0] + legs[i].articulations[j].y*mat[3] + mat[6];
 			legs[i].articulations[j].y = aux*mat[1] + legs[i].articulations[j].y*mat[4] + mat[7];
 		}
-	move_legs();
-	glutPostRedisplay();
-	if( step > 0 )
+	if( step > 0 ){
+		move_legs();
 		glutTimerFunc(ANIMATION_SPEED,&translate_spider,step-1);
-	else{
+	}else{
+		restore_legs_position();
 		canWalk = true;
 	}
+	glutPostRedisplay();
 }
 
 void move_legs(){
 	if(animationStep == ANIMATION_STEPS){
 		animationSpeed *= -1;
-		gg = false;
+		invertTransformation = true;
 	}else if(animationStep == -ANIMATION_STEPS){
 		animationSpeed *= -1;
-		gg = false;
+		invertTransformation = true;
 	}else if(animationStep == 0){
-		if(move_leg == &move_leg1){
-			move_leg = move_leg2;
-		}else{
-			move_leg = move_leg1;
-		}
-		gg = true;
+		if(transformOption == 1)
+			transformOption = 2;
+		else
+			transformOption = 1;
+		invertTransformation = false;
 	}
 	animationStep += animationSpeed;
 	for(int i = 0; i < NUMBER_OF_LEGS; i++)
-		move_leg(body[0][legs[i].attachment].x,body[0][legs[i].attachment].y,0,i, gg);
+		move_leg(body[0][legs[i].attachment].x,body[0][legs[i].attachment].y,0,i, invertTransformation, transformOption);
 }
 
-void move_leg1(GLfloat x, GLfloat y, int step, int current_leg,bool going){
+void move_leg(GLfloat x, GLfloat y, int step, int current_leg,bool going, int option){
 	if(step == NUMBER_OF_ARTICULATIONS+1)
 		return;
-	GLfloat rotation = going?legs_rotation1[step][current_leg]:-legs_rotation1[step][current_leg];
-	GLfloat scale = going?legs_scale1[step][current_leg]:1.0/legs_scale1[step][current_leg];
+	GLfloat rotation;
+	GLfloat scale;
+	switch(option){
+		case 1:
+			rotation = going?-legs_rotation1[step][current_leg]:legs_rotation1[step][current_leg];
+			scale = going?1.0/legs_scale1[step][current_leg]:legs_scale1[step][current_leg];
+		break;
+		case 2:
+			rotation = going?-legs_rotation2[step][current_leg]:legs_rotation2[step][current_leg];
+			scale = going?1.0/legs_scale2[step][current_leg]:legs_scale2[step][current_leg];
+		break;
+	}
 	GLfloat mat[9] = matRotateAndScale(rotation, x, y, scale);
 	GLfloat aux;
 
@@ -259,14 +270,39 @@ void move_leg1(GLfloat x, GLfloat y, int step, int current_leg,bool going){
 		legs[current_leg].articulations[j].y = aux*mat[1] + legs[current_leg].articulations[j].y*mat[4] + mat[7];
 	}
 
-	move_leg1(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg,going);
+	move_leg(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg,going, option);
 }
 
-void move_leg2(GLfloat x, GLfloat y, int step, int current_leg,bool going){
+void restore_legs_position(){
+	if(animationStep != 0){
+		if((animationSpeed > 0 && animationStep > 0 ) || (animationSpeed < 0 && animationStep < 0))
+			invertTransformation = !invertTransformation;
+		for(int i = 0; i < NUMBER_OF_LEGS; i++)
+			restore_leg_position(body[0][legs[i].attachment].x,body[0][legs[i].attachment].y,0,i, invertTransformation, transformOption,abs(animationStep));
+	}
+	transformOption = 1;
+	invertTransformation = false;
+	animationStep = 0;
+	animationSpeed = 1;
+}
+
+void restore_leg_position(GLfloat x, GLfloat y, int step, int current_leg,bool going, int option, int multipleSteps){
 	if(step == NUMBER_OF_ARTICULATIONS+1)
 		return;
-	GLfloat rotation = going?legs_rotation2[step][current_leg]:-legs_rotation2[step][current_leg];
-	GLfloat scale = going?legs_scale2[step][current_leg]:1.0/legs_scale2[step][current_leg];
+	GLfloat rotation;
+	GLfloat scale;
+	switch(option){
+		case 1:
+			rotation = going?-legs_rotation1[step][current_leg]:legs_rotation1[step][current_leg];
+			scale = going?1.0/legs_scale1[step][current_leg]:legs_scale1[step][current_leg];
+		break;
+		case 2:
+			rotation = going?-legs_rotation2[step][current_leg]:legs_rotation2[step][current_leg];
+			scale = going?1.0/legs_scale2[step][current_leg]:legs_scale2[step][current_leg];
+		break;
+	}
+	rotation *= multipleSteps;
+	scale = pow(scale,(float) multipleSteps);
 	GLfloat mat[9] = matRotateAndScale(rotation, x, y, scale);
 	GLfloat aux;
 
@@ -276,5 +312,5 @@ void move_leg2(GLfloat x, GLfloat y, int step, int current_leg,bool going){
 		legs[current_leg].articulations[j].y = aux*mat[1] + legs[current_leg].articulations[j].y*mat[4] + mat[7];
 	}
 
-	move_leg2(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg,going);
+	restore_leg_position(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg,going, option, multipleSteps);
 }

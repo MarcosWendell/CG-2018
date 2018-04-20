@@ -30,8 +30,9 @@ void draw_body();
 void rotate_spider(GLint);
 void translate_spider(GLint);
 void move_legs();
-void move_leg1(GLfloat, GLfloat, int, int, bool);
-void move_leg2(GLfloat, GLfloat, int, int, bool);
+void move_leg(GLfloat, GLfloat, int, int, bool, int);
+void restore_legs_position();
+void restore_leg_position(GLfloat, GLfloat, int, int, bool, int, int);
 
 #define matRotate(a,x,y) {cos(a),sin(a),0,-sin(a),cos(a),0,x-x*cos(a)+y*sin(a),y-y*cos(a)-x*sin(a),1}
 #define matRotateAndScale(a,x,y,s) {s*cos(a),s*sin(a),0,-s*sin(a),s*cos(a),0,x-s*x*cos(a)+s*y*sin(a),y-s*y*cos(a)-s*x*sin(a),1}
