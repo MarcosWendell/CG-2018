@@ -4,7 +4,7 @@
 #include<spider.h>
 
 /*
-Trabealho de computacao grafica parte 1 de:
+Trabalho de computacao grafica parte 1 de:
 	David Souza Rodrigues 4461180
 	Gabriel Toschi de Oliveira 9763039
 	Marcelo de Moraes Carvalho da Silva 9791048
