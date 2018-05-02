@@ -1,6 +1,14 @@
 #ifndef _SPIDER_H_
 #define _SPIDER_H_
 
+/*
+Trabealho de computacao grafica parte 1 de:
+	David Souza Rodrigues 4461180
+	Gabriel Toschi de Oliveira 9763039
+	Marcelo de Moraes Carvalho da Silva 9791048
+	Marcos Wendell Souza de Oliveira Santos 9791351
+*/
+
 #include<vector>
 
 using namespace std;
@@ -30,9 +38,9 @@ void draw_body();//funcao que desenha o corpo da aranha (Abdomen, Cefalotorax, O
 void rotate_spider(GLint);//funcao que rotaciona a aranha em torno do centro
 void translate_spider(GLint);//funcao que translada a aranha
 void move_legs();//funcao que move as pernas da aranha
-void move_leg(GLfloat, GLfloat, int, int, bool, int);//funcao que move uma perna da aranha
+void move_leg(GLfloat, GLfloat, int, int);//funcao que move uma perna da aranha
 void restore_legs_position();//funcao que restaura a posicao das pernas da aranha
-void restore_leg_position(GLfloat, GLfloat, int, int, bool, int, int);//funcao que restaura a posicao de uma perna da aranha
+void restore_leg_position(GLfloat, GLfloat, int, int, int);//funcao que restaura a posicao de uma perna da aranha
 
 #define matRotate(a,x,y) {cos(a),sin(a),0,-sin(a),cos(a),0,x-x*cos(a)+y*sin(a),y-y*cos(a)-x*sin(a),1}//matriz de rotacao em a angulos em torno do ponto de coordenadas x e y
 #define matRotateAndScale(a,x,y,s) {s*cos(a),s*sin(a),0,-s*sin(a),s*cos(a),0,x-s*x*cos(a)+s*y*sin(a),y-s*y*cos(a)-s*x*sin(a),1}//matriz de rotacao e escala em a angulos, escalando s uniformemente em torno do ponto de coordenadas x e y

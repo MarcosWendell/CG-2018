@@ -3,6 +3,13 @@
 #include<cmath>
 #include<spider.h>
 
+/*
+Trabealho de computacao grafica parte 1 de:
+	David Souza Rodrigues 4461180
+	Gabriel Toschi de Oliveira 9763039
+	Marcelo de Moraes Carvalho da Silva 9791048
+	Marcos Wendell Souza de Oliveira Santos 9791351
+*/
 using namespace std;
 
 //vetores com coordenadas dos centros das partes do corpo da aranha para inicializacao
@@ -83,11 +90,11 @@ int main(int argc, char *argv[]){
 //funcao que inicializa a cena
 /**/
 void init(){
-	glClearColor(1,1,1,1);//definicao da cor de clear como branco
+	glClearColor(0,0,0,1);//definicao da cor de clear como branco
 	glMatrixMode(GL_PROJECTION);//inicializacao do modo da matriz como matriz de projecao
 	gluOrtho2D(-WINDOW_WIDTH/2, WINDOW_WIDTH/2, -WINDOW_HEIGHT/2, WINDOW_HEIGHT/2);//inicializacao do sistema de coordenadas da cena
 	glClear(GL_COLOR_BUFFER_BIT);//limpeza da janela com a cor de clear pre-definida
-	glColor3f(0,0,0);//definicao da cor para desenho como preto
+	glColor3f(0,1,0);//definicao da cor para desenho como preto
 	glLineWidth(LINE_SIZE);//definicao da largura das linhas a denhar
 	build_body();//construcao do corpo da aranha
 	build_legs();//construcao das pernas da aranha
@@ -302,7 +309,7 @@ void move_legs(){
 	}
 	legsAnimationStep += legsAnimationSpeed;//o passo da animacao das pernas da aranha eh incrementado com legsAnimationSpeed
 	for(int i = 0; i < NUMBER_OF_LEGS; i++)//para cada perna da aranha chama-se a funcao que anima uma perna da aranha
-		move_leg(CEPHALOTHORAX[legs[i].attachment].x,CEPHALOTHORAX[legs[i].attachment].y,0,i, invertTransformation, legsAnimationOption );
+		move_leg(CEPHALOTHORAX[legs[i].attachment].x,CEPHALOTHORAX[legs[i].attachment].y,0,i);
 }
 
 /**/
@@ -313,22 +320,20 @@ void move_legs(){
 // - y: GLfloat, coordenada y do ponto fixo na rotacao e escala
 // - step: int, passo da animacao, articulacao atual da perna da aranha que se esta animando
 // - current_leg: int, perna atula que se esta animando
-// - invert: bool, inversacao ou nao da animacao da perna da aranha
-// - option: int, opcao de animacao da perna da aranha
 /**/
-void move_leg(GLfloat x, GLfloat y, int step, int current_leg,bool invert, int option){
+void move_leg(GLfloat x, GLfloat y, int step, int current_leg){
 	if(step == NUMBER_OF_ARTICULATIONS+1)//condicao de parada da funcao recursiva
 		return;
 	GLfloat rotation;//variavel auxiliar para inicializacao da matriz de transformacao
 	GLfloat scale;//variavel auxiliar para inicializacao da matriz de transformacao
-	switch(option){
+	switch(legsAnimationOption){
 		case 1://caso seja a animacao 1, obtem-se os valores dessa animacao para a perna atual a partir das matrizes correspondentes, e inverte-se a transformcao se necessario
-			rotation = invert?-legs_rotation1[step][current_leg]:legs_rotation1[step][current_leg];
-			scale = invert?1.0/legs_scale1[step][current_leg]:legs_scale1[step][current_leg];
+			rotation = invertTransformation?-legs_rotation1[step][current_leg]:legs_rotation1[step][current_leg];
+			scale = invertTransformation?1.0/legs_scale1[step][current_leg]:legs_scale1[step][current_leg];
 		break;
 		case 2://caso seja a animacao 2, obtem-se os valores dessa animacao para a perna atual a partir das matrizes correspondentes, e inverte-se a transformcao se necessario
-			rotation = invert?-legs_rotation2[step][current_leg]:legs_rotation2[step][current_leg];
-			scale = invert?1.0/legs_scale2[step][current_leg]:legs_scale2[step][current_leg];
+			rotation = invertTransformation?-legs_rotation2[step][current_leg]:legs_rotation2[step][current_leg];
+			scale = invertTransformation?1.0/legs_scale2[step][current_leg]:legs_scale2[step][current_leg];
 		break;
 	}
 	GLfloat mat[9] = matRotateAndScale(rotation, x, y, scale);//matriz que eh concatencao de 4 transformacao que foram feitas nessa ordem: translacao para a origem, rotacao, escala, translacao para as coordenadas originais do ponto fixo
@@ -340,7 +345,7 @@ void move_leg(GLfloat x, GLfloat y, int step, int current_leg,bool invert, int o
 		legs[current_leg].articulations[j].y = aux*mat[1] + legs[current_leg].articulations[j].y*mat[4] + mat[7];//pois se mantera sempre igual e nao eh interrsessante fazer contas desnecessarias
 	}
 
-	move_leg(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg, invert, option);//chama-se recursivamente a funcao novamente somando-se um passo a mais 
+	move_leg(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg);//chama-se recursivamente a funcao novamente somando-se um passo a mais 
 }
 
 /**/
@@ -352,7 +357,7 @@ void restore_legs_position(){
 		if((legsAnimationSpeed > 0 && legsAnimationStep > 0 ) || (legsAnimationSpeed < 0 && legsAnimationStep < 0))//se necessario inverter a transformcao para restaurar a posicao das pernas da aranha
 			invertTransformation = !invertTransformation;
 		for(int i = 0; i < NUMBER_OF_LEGS; i++)//chama-se a funcao que restaura a posicao de uma perna da aranha para cada perna da aranha
-			restore_leg_position(CEPHALOTHORAX[legs[i].attachment].x,CEPHALOTHORAX[legs[i].attachment].y,0,i, invertTransformation, legsAnimationOption ,abs(legsAnimationStep));
+			restore_leg_position(CEPHALOTHORAX[legs[i].attachment].x,CEPHALOTHORAX[legs[i].attachment].y,0,i, abs(legsAnimationStep));
 	}
 	legsAnimationOption  = 1;//defini-se a opcao de animacao das pernas da aranha como a 1
 	invertTransformation = false;//a inversao da animcao das pernas da aranha eh cancelada
@@ -368,23 +373,21 @@ void restore_legs_position(){
 // - y: GLfloat, coordenada y do ponto fixo na rotacao e escala
 // - step: int, passo da animacao, articulacao atual da perna da aranha que se esta animando
 // - current_leg: int, perna atula que se esta animando
-// - invert: bool, inversacao ou nao da animacao da perna da aranha
-// - option: int, opcao de animacao da perna da aranha
 // - multipleSteps: int, numero de passos que seriam necessarios para restaurar a posicao das pernas se fosse utilizada a funcao de animacao das pernas da aranha
 /**/
-void restore_leg_position(GLfloat x, GLfloat y, int step, int current_leg,bool invert, int option, int multipleSteps){
+void restore_leg_position(GLfloat x, GLfloat y, int step, int current_leg, int multipleSteps){
 	if(step == NUMBER_OF_ARTICULATIONS+1)//condicao de parada da funcao recursiva
 		return;
 	GLfloat rotation;//variavel auxiliar para inicializacao da matriz de transformacao
 	GLfloat scale;//variavel auxiliar para inicializacao da matriz de transformacao
-	switch(option){
+	switch(legsAnimationOption){
 		case 1://caso seja a animacao 1, obtem-se os valores dessa animacao para a perna atual a partir das matrizes correspondentes, e inverte-se a transformcao se necessario
-			rotation = invert?-legs_rotation1[step][current_leg]:legs_rotation1[step][current_leg];
-			scale = invert?1.0/legs_scale1[step][current_leg]:legs_scale1[step][current_leg];
+			rotation = invertTransformation?-legs_rotation1[step][current_leg]:legs_rotation1[step][current_leg];
+			scale = invertTransformation?1.0/legs_scale1[step][current_leg]:legs_scale1[step][current_leg];
 		break;
 		case 2://caso seja a animacao 2, obtem-se os valores dessa animacao para a perna atual a partir das matrizes correspondentes, e inverte-se a transformcao se necessario
-			rotation = invert?-legs_rotation2[step][current_leg]:legs_rotation2[step][current_leg];
-			scale = invert?1.0/legs_scale2[step][current_leg]:legs_scale2[step][current_leg];
+			rotation = invertTransformation?-legs_rotation2[step][current_leg]:legs_rotation2[step][current_leg];
+			scale = invertTransformation?1.0/legs_scale2[step][current_leg]:legs_scale2[step][current_leg];
 		break;
 	}
 	rotation *= multipleSteps;//multiplica-se o angulo para realizar uma transformcao apenas ao inves de varias pequenas
@@ -398,5 +401,5 @@ void restore_leg_position(GLfloat x, GLfloat y, int step, int current_leg,bool i
 		legs[current_leg].articulations[j].y = aux*mat[1] + legs[current_leg].articulations[j].y*mat[4] + mat[7];//pois se mantera sempre igual e nao eh interrsessante fazer contas desnecessarias
 	}
 
-	restore_leg_position(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg, invert, option, multipleSteps);//chama-se recursivamente a funcao novamente somando-se um passo a mais 
+	restore_leg_position(legs[current_leg].articulations[step].x,legs[current_leg].articulations[step].y,step+1,current_leg, multipleSteps);//chama-se recursivamente a funcao novamente somando-se um passo a mais 
 }
