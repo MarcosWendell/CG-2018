@@ -1,6 +1,6 @@
 #include <cmath>
 #include <GL/glut.h>
-#include<iostream>
+#include <iostream>
 
 using namespace std;
 
@@ -17,35 +17,41 @@ point center;
 GLfloat rotation;
 vec3D orientation;
 
-void drawAxis(){
+void drawAxis(GLchar exception){
 	GLfloat color[4];
 	glGetFloatv(GL_CURRENT_COLOR, color);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
-	glScalef(10,10,10);
-	glColor3f(1,0,0);
-	glBegin(GL_LINES);
-		glVertex3f(-1,0,0);
-		glVertex3f(1,0,0);
-	glEnd();
-	glColor3f(0,1,0);
-	glBegin(GL_LINES);
-		glVertex3f(0,-1,0);
-		glVertex3f(0,1,0);
-	glEnd();
-	glColor3f(0,0,1);
-	glBegin(GL_LINES);
-		glVertex3f(0,0,-1);
-		glVertex3f(0,0,1);
-	glEnd();
+	glScalef(100,100,100);
+	if(exception != 1){
+		glColor3f(1,0,0);
+		glBegin(GL_LINES);
+			glVertex3f(-1,0,0);
+			glVertex3f(1,0,0);
+		glEnd();
+	}
+	if(exception != 2){
+		glColor3f(0,1,0);
+		glBegin(GL_LINES);
+			glVertex3f(0,-1,0);
+			glVertex3f(0,1,0);
+		glEnd();
+	}
+	if(exception != 3){
+		glColor3f(0,0,1);
+		glBegin(GL_LINES);
+			glVertex3f(0,0,-1);
+			glVertex3f(0,0,1);
+		glEnd();
+	}
 	glPopMatrix();
 	glColor3f(color[0],color[1],color[2]);
 }
 
 void drawSpider(){
 	glPushMatrix();
-	glRotatef(rotation,0,1,0);
 	glTranslatef(center.x,center.y,center.z);
+	glRotatef(rotation,0,1,0);
 	glutWireSphere(0.5,10,10);
 	glTranslatef(-1.4,0,0);
 	glutWireSphere(0.9,10,10);
@@ -59,8 +65,8 @@ void translateSpider(GLfloat d){
 }
 
 void rotateSpider(GLfloat d){
-	rotation += d;
-	d = M_PI/180.0;
+	rotation -= d;
+	d *= M_PI/180.0;
 	GLfloat aux = orientation.x;
 	orientation.x = orientation.x*cos(d)-orientation.z*sin(d);
 	orientation.z = aux*sin(d)+orientation.z*cos(d);
@@ -90,26 +96,26 @@ void display(){
 
 	glViewport(0,0,width/2,height/2);
 	glLoadIdentity();
-	gluLookAt(5+center.x,0,center.z,center.x,center.y,center.z,0,1,0);
-	drawAxis();
+	gluLookAt(5+center.x,center.y,center.z,center.x,center.y,center.z,0,1,0);
+	drawAxis(1);
 	drawSpider();
 
 	glViewport(0,height/2,width/2,height/2);
 	glLoadIdentity();
-	gluLookAt(center.x,5,center.z,center.x,center.y,center.z,0,0,1);
-	drawAxis();
+	gluLookAt(center.x,center.y+5,center.z,center.x,center.y,center.z,0,0,1);
+	drawAxis(2);
 	drawSpider();
 
 	glViewport(width/2,0,width/2,height/2);
 	glLoadIdentity();
-	gluLookAt(center.x,0,center.z-5,center.x,center.y,center.z,0,1,0);
-	drawAxis();
+	gluLookAt(center.x,center.y,center.z-5,center.x,center.y,center.z,0,1,0);
+	drawAxis(3);
 	drawSpider();
 
 	glViewport(width/2,height/2,width/2,height/2);
 	glLoadIdentity();
 	gluLookAt(center.x+3,center.y+1,center.z+5,center.x,center.y,center.z,0,1,0);
-	drawAxis();
+	drawAxis(0);
 	drawSpider();
 
 	glFlush();
