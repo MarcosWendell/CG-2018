@@ -1,6 +1,6 @@
 #include <cmath>
 #include <GL/glut.h>
-#include<iosteram>
+#include<iostream>
 
 using namespace std;
 
@@ -60,10 +60,10 @@ void translateSpider(GLfloat d){
 
 void rotateSpider(GLfloat d){
 	rotation += d;
+	d = M_PI/180.0;
 	GLfloat aux = orientation.x;
-	orientation.x += cos(aux)-sin(orientation.z);
-	orientation.z += sin(aux)+cos(orientation.z);
-
+	orientation.x = orientation.x*cos(d)-orientation.z*sin(d);
+	orientation.z = aux*sin(d)+orientation.z*cos(d);
 	glutPostRedisplay();
 }
 
@@ -90,7 +90,7 @@ void display(){
 
 	glViewport(0,0,width/2,height/2);
 	glLoadIdentity();
-	gluLookAt(center.x+5,0,center.y,center.x,center.y,center.z,0,1,0);
+	gluLookAt(5+center.x,0,center.z,center.x,center.y,center.z,0,1,0);
 	drawAxis();
 	drawSpider();
 
@@ -102,13 +102,13 @@ void display(){
 
 	glViewport(width/2,0,width/2,height/2);
 	glLoadIdentity();
-	gluLookAt(center.x,center.y,-5,0,0,0,0,1,0);
+	gluLookAt(center.x,0,center.z-5,center.x,center.y,center.z,0,1,0);
 	drawAxis();
 	drawSpider();
 
 	glViewport(width/2,height/2,width/2,height/2);
 	glLoadIdentity();
-	gluLookAt(3,center.y+1,center.z+5,0,0,0,0,1,0);
+	gluLookAt(center.x+3,center.y+1,center.z+5,center.x,center.y,center.z,0,1,0);
 	drawAxis();
 	drawSpider();
 
