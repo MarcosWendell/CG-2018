@@ -1,6 +1,6 @@
-#include <cmath>
-#include <GL/glut.h>
-#include <iostream>
+#include<cmath>
+#include<GL/glut.h>
+#include<spider.h>
 
 using namespace std;
 
@@ -13,31 +13,36 @@ typedef struct{
 
 typedef point vec3D;//definicao de um vetor 2D, assim como um ponto um vetor 3D tem duas coordenadas (x e y) para sua representação
 
+GLfloat vec[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG][NUMBER_OF_COORDENATES] = {{{0.2,0,0.4},{1.3,1,0},{2,-2,0}},{{0.1,0,0.45},{0.6,0.5,0},{1.3,-1.5,0}},{{-0.08,0,0.47},{0.45,0.5,0},{1.3,-1.5,0}},{{-0.2,0,0.4},{0.3,1,0},{3,-2,0}},
+																				{{0.2,0,-0.4},{1.3,1,0},{2,-2,0}},{{0.1,0,-0.45},{0.6,0.5,0},{1.3,-1.5,0}},{{-0.08,0,-0.47},{0.45,0.5,0},{1.3,-1.5,0}},{{-0.2,0,-0.4},{0.3,1,0},{3,-2,0}}};
+GLfloat rotations[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG - 1] = {{-10,-25},{-70,-73},{-70,-77},{-62,-90},{10,25},{70,73},{70,77},{62,90}};
+
 point center;
 GLfloat rotation;
 vec3D orientation;
 
-void drawAxis(GLchar exception){
+
+void drawAxes(axes except){
 	GLfloat color[4];
 	glGetFloatv(GL_CURRENT_COLOR, color);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glScalef(100,100,100);
-	if(exception != 1){
+	if(except != X_AXIS){
 		glColor3f(1,0,0);
 		glBegin(GL_LINES);
 			glVertex3f(-1,0,0);
 			glVertex3f(1,0,0);
 		glEnd();
 	}
-	if(exception != 2){
+	if(except != Y_AXIS){
 		glColor3f(0,1,0);
 		glBegin(GL_LINES);
 			glVertex3f(0,-1,0);
 			glVertex3f(0,1,0);
 		glEnd();
 	}
-	if(exception != 3){
+	if(except != Z_AXIS){
 		glColor3f(0,0,1);
 		glBegin(GL_LINES);
 			glVertex3f(0,0,-1);
@@ -47,12 +52,47 @@ void drawAxis(GLchar exception){
 	glPopMatrix();
 	glColor3f(color[0],color[1],color[2]);
 }
+/*
+void drawLegs(){
+	//1.5,1,0.6
+	//3.2,-1.5,2
+	glPushMatrix();
+	glTranslatef(0.2,0,0.4);
+	glRotatef(-15,0,1,0);
+	glBegin(GL_LINES);
+		glVertex3f(0,0,0);
+		glVertex3f(1.5,1,0);
+	glEnd();
+	glTranslatef(1.5,1,0);
+	glRotatef(-20,0,1,0);
+	glBegin(GL_LINES);
+		glVertex3f(0,0,0);
+		glVertex3f(2,-2,0);
+	glEnd();
+	glPopMatrix();
+}*/
+
+void drawLegs(){
+	for(int i = 0; i < NUMBER_OF_LEGS; i++){
+		glPushMatrix();
+		for(int j = 0; j < NUMBER_OF_POINTS_PER_LEG - 1; j++){
+			glTranslatef(vec[i][j][X],vec[i][j][Y],vec[i][j][Z]);
+			glRotatef(rotations[i][j],0,1,0);
+			glBegin(GL_LINES);
+				glVertex3f(0,0,0);
+				glVertex3f(vec[i][j+1][X],vec[i][j+1][Y],vec[i][j+1][Z]);
+			glEnd();
+		}
+		glPopMatrix();
+	}
+}
 
 void drawSpider(){
 	glPushMatrix();
 	glTranslatef(center.x,center.y,center.z);
 	glRotatef(rotation,0,1,0);
 	glutWireSphere(0.5,10,10);
+	drawLegs();
 	glTranslatef(-1.4,0,0);
 	glutWireSphere(0.9,10,10);
 	glPopMatrix();
@@ -97,25 +137,25 @@ void display(){
 	glViewport(0,0,width/2,height/2);
 	glLoadIdentity();
 	gluLookAt(5+center.x,center.y,center.z,center.x,center.y,center.z,0,1,0);
-	drawAxis(1);
+	drawAxes(X_AXIS);
 	drawSpider();
 
 	glViewport(0,height/2,width/2,height/2);
 	glLoadIdentity();
 	gluLookAt(center.x,center.y+5,center.z,center.x,center.y,center.z,0,0,1);
-	drawAxis(2);
+	drawAxes(Y_AXIS);
 	drawSpider();
 
 	glViewport(width/2,0,width/2,height/2);
 	glLoadIdentity();
 	gluLookAt(center.x,center.y,center.z-5,center.x,center.y,center.z,0,1,0);
-	drawAxis(3);
+	drawAxes(Z_AXIS);
 	drawSpider();
 
 	glViewport(width/2,height/2,width/2,height/2);
 	glLoadIdentity();
 	gluLookAt(center.x+3,center.y+1,center.z+5,center.x,center.y,center.z,0,1,0);
-	drawAxis(0);
+	drawAxes(NONE);
 	drawSpider();
 
 	glFlush();
@@ -128,7 +168,7 @@ void init(){
 	glColor3f(0,1,1);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(65.0,1.0,0.0,4.0);
+	gluPerspective(65.0,1.0,0.0,10.0);
 	glMatrixMode(GL_MODELVIEW);
 	orientation.x = 1;
 	orientation.y = 0;
