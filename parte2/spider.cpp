@@ -1,21 +1,22 @@
 #include<cmath>
+#include<cstdio>
 #include<GL/glut.h>
 #include<spider.h>
 
 using namespace std;
 
-GLint width  = 500,
-	  height = 500;
+GLint width  = 700,
+	  height = 700;
 
-typedef struct{
-	GLfloat x,y,z;//coordenadas x e y de um ponto (float)
-}point;//definicao de um ponto
-
-typedef point vec3D;//definicao de um vetor 2D, assim como um ponto um vetor 3D tem duas coordenadas (x e y) para sua representação
-
-GLfloat vec[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG][NUMBER_OF_COORDENATES] = {{{0.2,0,0.4},{1.3,1,0},{2,-2,0}},{{0.1,0,0.45},{0.6,0.5,0},{1.3,-1.5,0}},{{-0.08,0,0.47},{0.45,0.5,0},{1.3,-1.5,0}},{{-0.2,0,0.4},{0.3,1,0},{3,-2,0}},
-																				{{0.2,0,-0.4},{1.3,1,0},{2,-2,0}},{{0.1,0,-0.45},{0.6,0.5,0},{1.3,-1.5,0}},{{-0.08,0,-0.47},{0.45,0.5,0},{1.3,-1.5,0}},{{-0.2,0,-0.4},{0.3,1,0},{3,-2,0}}};
+GLfloat vec[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG][NUMBER_OF_COORDENATES] = {{{0.1,0,0.2},{0.65,0.5,0},{1,-1,0}},{{0.05,0,0.225},{0.3,0.25,0},{0.65,-0.75,0}},{{-0.04,0,0.235},{0.225,0.25,0},{0.65,-0.75,0}},{{-0.1,0,0.2},{0.15,0.5,0},{1.5,-1,0}},
+																				{{0.1,0,-0.2},{0.65,0.5,0},{1,-1,0}},{{0.05,0,-0.225},{0.3,0.25,0},{0.65,-0.75,0}},{{-0.04,0,-0.235},{0.225,0.25,0},{0.65,-0.75,0}},{{-0.1,0,-0.2},{0.15,0.5,0},{1.5,-1,0}}};
 GLfloat rotations[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG - 1] = {{-10,-25},{-70,-73},{-70,-77},{-62,-90},{10,25},{70,73},{70,77},{62,90}};
+
+GLfloat animation1[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG - 1] = {{1,2},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1}};
+
+int animationSpeed = 1;
+int animationStep = 0;
+animationDirection lastDirection;
 
 point center;
 GLfloat rotation;
@@ -52,25 +53,6 @@ void drawAxes(axes except){
 	glPopMatrix();
 	glColor3f(color[0],color[1],color[2]);
 }
-/*
-void drawLegs(){
-	//1.5,1,0.6
-	//3.2,-1.5,2
-	glPushMatrix();
-	glTranslatef(0.2,0,0.4);
-	glRotatef(-15,0,1,0);
-	glBegin(GL_LINES);
-		glVertex3f(0,0,0);
-		glVertex3f(1.5,1,0);
-	glEnd();
-	glTranslatef(1.5,1,0);
-	glRotatef(-20,0,1,0);
-	glBegin(GL_LINES);
-		glVertex3f(0,0,0);
-		glVertex3f(2,-2,0);
-	glEnd();
-	glPopMatrix();
-}*/
 
 void drawLegs(){
 	for(int i = 0; i < NUMBER_OF_LEGS; i++){
@@ -89,13 +71,30 @@ void drawLegs(){
 
 void drawSpider(){
 	glPushMatrix();
+	glColor3f(1,1,0);
 	glTranslatef(center.x,center.y,center.z);
 	glRotatef(rotation,0,1,0);
-	glutWireSphere(0.5,10,10);
+	glutSolidSphere(0.25,10,10);
 	drawLegs();
-	glTranslatef(-1.4,0,0);
-	glutWireSphere(0.9,10,10);
+	glColor3f(1,0,1);
+	glTranslatef(-0.7,0,0);
+	glutSolidSphere(0.45,10,10);
 	glPopMatrix();
+}
+
+void moveLegs(animationDirection aD){
+	if(lastDirection != aD && (animationStep == ANIMATION_STEPS || animationStep == 0)){
+		animationSpeed *= -1;
+	}
+	for(int i = 0; i < NUMBER_OF_LEGS; i++)
+		for(int j = 0; j < NUMBER_OF_POINTS_PER_LEG - 1; j++)
+			rotations[i][j] += animationSpeed*aD * animation1[i][j];
+
+	animationStep += aD*animationSpeed;
+	if(animationStep == ANIMATION_STEPS || animationStep == 0)
+		animationSpeed *= -1;
+
+	lastDirection = aD;
 }
 
 void translateSpider(GLfloat d){
@@ -116,15 +115,19 @@ void rotateSpider(GLfloat d){
 void keyboard(GLint key, GLint x, GLint y){
 	switch(key){
 		case GLUT_KEY_LEFT:
+			moveLegs(BACKWARD);
 			rotateSpider(-1);
 		break;
 		case GLUT_KEY_DOWN:
+			moveLegs(BACKWARD);
 			translateSpider(-1);
 		break;
 		case GLUT_KEY_RIGHT:
+			moveLegs(FORWARD);
 			rotateSpider(1);
 		break;
 		case GLUT_KEY_UP:
+			moveLegs(FORWARD);
 			translateSpider(1);
 		break;
 	}
@@ -132,7 +135,7 @@ void keyboard(GLint key, GLint x, GLint y){
 }
 
 void display(){
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glViewport(0,0,width/2,height/2);
 	glLoadIdentity();
@@ -175,14 +178,15 @@ void init(){
 	orientation.z = 0;
 	rotation = 0;
 	center.x = 0;
-	center.y = 1;
+	center.y = 0.5;
 	center.z = 0;
+	lastDirection = FORWARD;
 }
 
 int main(int argc, char *argv[]){
 
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
 	GLint screen_width  = glutGet(GLUT_SCREEN_WIDTH),
 		  screen_heigth = glutGet(GLUT_SCREEN_HEIGHT);
