@@ -12,7 +12,7 @@ GLfloat vec[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG][NUMBER_OF_COORDENATES] = {
 																				{{0.1,0,-0.2},{0.65,0.5,0},{1,-1,0}},{{0.05,0,-0.225},{0.3,0.25,0},{0.65,-0.75,0}},{{-0.04,0,-0.235},{0.225,0.25,0},{0.65,-0.75,0}},{{-0.1,0,-0.2},{0.15,0.5,0},{1.5,-1,0}}};
 GLfloat rotations[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG - 1] = {{-10,-25},{-70,-73},{-70,-77},{-62,-90},{10,25},{70,73},{70,77},{62,90}};
 
-GLfloat animation1[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG - 1] = {{1,2},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1},{1,1}};
+GLfloat animation1[NUMBER_OF_LEGS][NUMBER_OF_POINTS_PER_LEG - 1] = {{1,2},{-1/(float)5,-1/(float)5},{1/(float)5,1/(float)5},{-2/(float)5,-2/(float)5},{2,4},{-2,-2},{1,1},{0,0}};
 
 int animationSpeed = 1;
 int animationStep = 0;
@@ -79,6 +79,7 @@ void drawSpider(){
 	glColor3f(1,0,1);
 	glTranslatef(-0.7,0,0);
 	glutSolidSphere(0.45,10,10);
+	glTranslatef(0.7,0,0);
 	glPopMatrix();
 }
 
@@ -161,17 +162,17 @@ void display(){
 	drawAxes(NONE);
 	drawSpider();
 
-	glFlush();
 	glutSwapBuffers();
 }
 
 void init(){
 	glClearColor(0,0,0,0);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LEQUAL);
 	glColor3f(0,1,1);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(65.0,1.0,0.0,10.0);
+	gluPerspective(65.0,1.0,0.01,10.0);
 	glMatrixMode(GL_MODELVIEW);
 	orientation.x = 1;
 	orientation.y = 0;
