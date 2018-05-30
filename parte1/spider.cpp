@@ -205,7 +205,7 @@ void draw_legs(){
 			glVertex2f(CEPHALOTHORAX[legs[i].attachment].x,CEPHALOTHORAX[legs[i].attachment].y);//comeca-se com o ponto de conexao com o cefalotorax
 			for(int j = 0; j < legs[i].articulations.size();j++)
 				glVertex2f(legs[i].articulations[j].x,legs[i].articulations[j].y);//passa-se os outros pontos das pernas
-		glEnd();//finalizacao do pontos a desnhar
+		glEnd();//finalizacao do pontos a desenhar
 	}
 
 }
