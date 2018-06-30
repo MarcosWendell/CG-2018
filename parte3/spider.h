@@ -49,10 +49,11 @@ void moveLegs(animationDirection);//funcao que move as pernas da aranha
 #define ANIMATION_STEPS 10.0//numero de passos utilizados para animar o movimento completo das pernas
 #define TRANSLATION_STEP 0.1//tamanho de um passo de translacao
 #define ROTATION_STEP 1//tamanho de um passo de rotacao
+#define FLOOR_SIZE 10
 
 #define CLEAR_COLOR 0.0,0.0,0.0,0.0//cor de
-#define SPIDER_COLOR_1 1.0,1.0,0.0//cor do cefalotorax da aranha
-#define SPIDER_COLOR_2 0.7,0.0,0.0//cor do abdomen da aranha
+#define SPIDER_COLOR_1 1.0,1.0,1.0//cor do cefalotorax da aranha
+#define SPIDER_COLOR_2 0.55,0.27,0.07//cor do abdomen da aranha
 #define X_AXIS_COLOR 1.0,0.0,0.0//cor do eixo coordenado X
 #define Y_AXIS_COLOR 0.0,1.0,0.0//cor do eixo coordenado Y
 #define Z_AXIS_COLOR 0.0,0.0,1.0//cor do eixo coordenado Z
