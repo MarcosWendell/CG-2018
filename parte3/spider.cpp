@@ -1,17 +1,15 @@
 #include <cmath>
-#include <iostream>
 #include <GL/glut.h>
 #include <opencv2/opencv.hpp>
 #include <spider.h>
 #include <vector>
-#include <string>
 
 /*
 Trabalho de computacao grafica parte 2 de:
 	David Souza Rodrigues 4461180
 	Gabriel Toschi de Oliveira 9763039
 	Marcelo de Moraes Carvalho da Silva 9791048
-	Marcos Wendell Souza de Oliv	eira Santos 9791351
+	Marcos Wendell Souza de Oliveira Santos 9791351
 */
 
 //matriz com as coordenadas dos vertices das pernas
@@ -91,12 +89,6 @@ void init(){
 	glLightfv(GL_LIGHT0,GL_AMBIENT,light_color0);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_color0);
 	glLightfv(GL_LIGHT0,GL_SPECULAR,light_color0);
-//	glLightf(GL_LIGHT0,GL_CONSTANT_ATTENUATION, 1);
-//	glLightf(GL_LIGHT0,GL_SPOT_CUTOFF,120);
-//	glLightfv(GL_LIGHT0,GL_SPOT_DIRECTION, directionVector);
-//	glLightf(GL_LIGHT0,GL_SPOT_EXPONENT,12);
-//	glMaterialfv(GL_FRONT,GL_COLOR_INDEX,light_color0);
-//	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light_color1);
 	glEnable(GL_COLOR_MATERIAL);
 	glEnable(GL_LIGHTING);
@@ -117,9 +109,9 @@ void init(){
 	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, img.cols, img.rows, 1, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	img = cv::imread("skybox/zneg.jpg");
 	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
 	img = cv::imread("skybox/zpos.jpg");
@@ -155,7 +147,7 @@ void display(){
 
 	glViewport(width/2,0,width/2,height);//definicao de uma viewport no canto superior esquerdo da janela
 	glLoadIdentity();//carregando a matriz identidade
-	gluLookAt(center.x+3,center.y+1,center.z+5,center.x,center.y,center.z,0,1,0);//definindo uma visao olhando a partir do eixo Y
+	gluLookAt(center.x-3,center.y+1,center.z-5,center.x,center.y,center.z,0,1,0);//definindo uma visao olhando a partir do eixo Y
 	drawSky();
 	drawFloor();
 	drawSpider();//desenhando a aranha
@@ -250,7 +242,7 @@ void drawSpider(){
 //funcao que desenha as pernas da aranha
 /**/
 void drawLegs(){
-	glColor3f(0,0,0);
+	glColor3f(0.55,0.27,0.07);
 	for(int i = 0; i < NUMBER_OF_LEGS; i++){//para cada perna da aranha
 		glPushMatrix();//aramazenando a matriz atual
 		for(int j = 0; j < NUMBER_OF_POINTS_PER_LEG - 1; j++){//para cada vertice da perna da aranha menos um
@@ -264,42 +256,6 @@ void drawLegs(){
 		glPopMatrix();//recuperando a matriz anterior
 	}
 	glColor3f(1,1,1);
-}
-
-/**/
-//drawAxes
-//funcao que desenha os eixos coordenados
-//params:
-// - except: axes, eixo coordenado que nao deseja-se desenhar
-/**/
-void drawAxes(axes except){
-	GLfloat color[4];
-	glGetFloatv(GL_CURRENT_COLOR, color);//pegando cor atual
-	glPushMatrix();//armazenando matriz atual
-	glScalef(100,100,100);//escalando para que os eixos fiquem extensos
-	if(except != X_AXIS){//se o eixo coordenado X nao for selecionado
-		glColor3f(X_AXIS_COLOR);//definindo a cor do exio X
-		glBegin(GL_LINES);//inicializacao dos pontos a desenhar com GL_LINES, a cada dois pontos desenha-se um segmento de reta
-			glVertex3f(-1,0,0);//ponto inicial do segmento de reta
-			glVertex3f(1,0,0);//ponto final do segmento de reta
-		glEnd();//finalizacao dos pontos a desenhar
-	}
-	if(except != Y_AXIS){//se o eixo coordenado Y nao for selecionado
-		glColor3f(Y_AXIS_COLOR);//definindo a cor do exio Y
-		glBegin(GL_LINES);//inicializacao dos pontos a desenhar com GL_LINES, a cada dois pontos desenha-se um segmento de reta
-			glVertex3f(0,-1,0);//ponto inicial do segmento de reta
-			glVertex3f(0,1,0);//ponto final do segmento de reta
-		glEnd();//finalizacao dos pontos a desenhar
-	}
-	if(except != Z_AXIS){//se o eixo coordenado Z nao for selecionado
-		glColor3f(Z_AXIS_COLOR);//definindo a cor do exio Z
-		glBegin(GL_LINES);//inicializacao dos pontos a desenhar com GL_LINES, a cada dois pontos desenha-se um segmento de reta
-			glVertex3f(0,0,-1);//ponto inicial do segmento de reta
-			glVertex3f(0,0,1);//ponto final do segmento de reta
-		glEnd();//finalizacao dos pontos a desenhar
-	}
-	glPopMatrix();//recuperando a matriz anterior
-	glColor3f(color[0],color[1],color[2]);//voltando a cor definida anteriormente
 }
 
 void drawFloor(){
@@ -317,111 +273,111 @@ void drawSky(){
 	std::vector<point> POINTS;
 	point aux;
 	//1
-	aux.x = -20;
-	aux.y = 10;
-	aux.z = -20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = 10;
-	aux.z = -20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = -10;
-	aux.z = -20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = -20;
-	aux.y = -10;
-	aux.z = -20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
 	//2
-	aux.x = -20;
-	aux.y = 10;
-	aux.z = 20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = 10;
-	aux.z = 20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = -10;
-	aux.z = 20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = -20;
-	aux.y = -10;
-	aux.z = 20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
 	//3
-	aux.x = 20;
-	aux.y = 10;
-	aux.z = 20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.y = -10;
-	aux.z = 20;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = -10;
-	aux.z = -20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = 10;
-	aux.z = -20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
 	//4
-	aux.x = -20;
-	aux.y = -10;
-	aux.z = 20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = -20;
-	aux.y = 10;
-	aux.z = 20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = -20;
-	aux.y = 10;
-	aux.z = -20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = -20;
-	aux.y = -10;
-	aux.z = -20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
 	//5
-	aux.x = -20;
-	aux.y = 10;
-	aux.z = 20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = 10;
-	aux.z = 20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = 10;
-	aux.z = -20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = -20;
-	aux.y = 10;
-	aux.z = -20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
 	//6
-	aux.x = -20;
-	aux.y = -10;
-	aux.z = 20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = -10;
-	aux.z = 20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = 20;
-	aux.y = -10;
-	aux.z = -20;
+	aux.x = SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	aux.x = -20;
-	aux.y = -10;
-	aux.z = -20;
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
 
 	glEnable(GL_TEXTURE_CUBE_MAP);
 	glBegin(GL_QUADS);
 	for(int i = 0; i < POINTS.size(); i++){
-		glTexCoord3f(POINTS[i].x/20.0, POINTS[i].y/10.0, POINTS[i].z/20.0);
+		glTexCoord3f(POINTS[i].x/SKYBOX_SIZE, POINTS[i].y/SKYBOX_HEIGHT, POINTS[i].z/SKYBOX_SIZE);
 		glVertex3f(POINTS[i].x, POINTS[i].y,POINTS[i].z);
 	}
 	glEnd();
@@ -436,11 +392,11 @@ void drawSky(){
 /**/
 void translateSpider(GLfloat d){
 	GLfloat aux = center.x + orientation.x*d;
-	if(aux >= -FLOOR_SIZE && aux <= FLOOR_SIZE)
+	if(aux >= -FLOOR_SIZE + MARGIN && aux <= FLOOR_SIZE - MARGIN)
 		center.x = aux;//definicao da nova coordenada x do centro da aranha
 	aux = center.z + orientation.z*d;
-	if(aux >= -FLOOR_SIZE && aux <= FLOOR_SIZE)
-		center.z += orientation.z*d;//definicao da nova coordenada z do centro da aranha
+	if(aux >= -FLOOR_SIZE + MARGIN && aux <= FLOOR_SIZE - MARGIN)
+		center.z = aux;//definicao da nova coordenada z do centro da aranha
 	glutPostRedisplay();//sinalizacao para a biblioteca GLUT para chamer a funcao que cuida do display
 }
 

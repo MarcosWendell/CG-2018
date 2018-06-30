@@ -14,7 +14,6 @@ typedef enum{
 	Y_AXIS,//eixo coordenado Y
 	Z_AXIS,//eixo coordenado Z
 	NUMBER_OF_COORDENATES,//numero de eixos coordenados
-	NONE//representacao de selecionar nenhum dos eixos coordenados
 } axes;//eixos coordenados
 
 typedef enum{
@@ -36,7 +35,6 @@ void reshape(int, int);//funcao que trata o redimencionamento da janela
 
 void drawSpider();//funcao que desenha a aranha
 void drawLegs();//funcao que desenha as pernas da aranha
-void drawAxes(axes);//funcao que desenha os eixos coordenados, com excecao do eixo passado como parametro
 void drawFloor();
 void drawSky();
 
@@ -49,7 +47,10 @@ void moveLegs(animationDirection);//funcao que move as pernas da aranha
 #define ANIMATION_STEPS 10.0//numero de passos utilizados para animar o movimento completo das pernas
 #define TRANSLATION_STEP 0.1//tamanho de um passo de translacao
 #define ROTATION_STEP 1//tamanho de um passo de rotacao
-#define FLOOR_SIZE 10
+#define FLOOR_SIZE 15.0
+#define MARGIN 2
+#define SKYBOX_SIZE 30.0
+#define SKYBOX_HEIGHT 15.0
 
 #define CLEAR_COLOR 0.0,0.0,0.0,0.0//cor de
 #define SPIDER_COLOR_1 1.0,1.0,1.0//cor do cefalotorax da aranha
