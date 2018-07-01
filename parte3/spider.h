@@ -2,7 +2,7 @@
 #define _SPIDER_H_
 
 /*
-Trabalho de computacao grafica parte 2 de:
+Trabalho de computacao grafica parte 3 de:
 	David Souza Rodrigues 4461180
 	Gabriel Toschi de Oliveira 9763039
 	Marcelo de Moraes Carvalho da Silva 9791048
@@ -29,14 +29,14 @@ typedef point vec3D;//definicao de um vetor 3D, assim como um ponto, um vetor 3D
 
 void init();//funcao de inicializacao da cena
 void display();//funcao que trata do display da aranha na cena
-void fog(unsigned char, int, int);
-void keyboard(GLint, GLint, GLint);//funcao que trata a entrada do teclado
+void fog(unsigned char, int, int);//funcao que trata a entrada do teclado (ativar neblina com tecla 'n')
+void keyboard(GLint, GLint, GLint);//funcao que trata a entrada do teclado (setas)
 void reshape(int, int);//funcao que trata o redimencionamento da janela
 
 void drawSpider();//funcao que desenha a aranha
 void drawLegs();//funcao que desenha as pernas da aranha
-void drawFloor();
-void drawSky();
+void drawFloor();//funcao que desenha o chao
+void drawSky();//funcao que desenha o skybox
 
 void translateSpider(GLfloat);//funcao que translada a aranha na cena
 void rotateSpider(GLfloat);//funcao que rotaciona a aranha na cena
@@ -47,17 +47,18 @@ void moveLegs(animationDirection);//funcao que move as pernas da aranha
 #define ANIMATION_STEPS 10.0//numero de passos utilizados para animar o movimento completo das pernas
 #define TRANSLATION_STEP 0.1//tamanho de um passo de translacao
 #define ROTATION_STEP 1//tamanho de um passo de rotacao
-#define FLOOR_SIZE 15.0
-#define MARGIN 2
-#define SKYBOX_SIZE 30.0
-#define SKYBOX_HEIGHT 15.0
+#define FLOOR_SIZE 15.0//tamanho do lado do quadrado que representa o chao
+#define MARGIN 2//tamanho da margem de movimentacao da aranha no plano do chao
+#define SKYBOX_SIZE 30.0//tamanho da largura e comprimento do hexaedro utilizado para o skybox
+#define SKYBOX_HEIGHT 15.0//tamanho da altura do hexaedro utilizado para o skybox
 
-#define CLEAR_COLOR 0.0,0.0,0.0,0.0//cor de
 #define SPIDER_COLOR_1 1.0,1.0,1.0//cor do cefalotorax da aranha
 #define SPIDER_COLOR_2 0.55,0.27,0.07//cor do abdomen da aranha
-#define X_AXIS_COLOR 1.0,0.0,0.0//cor do eixo coordenado X
-#define Y_AXIS_COLOR 0.0,1.0,0.0//cor do eixo coordenado Y
-#define Z_AXIS_COLOR 0.0,0.0,1.0//cor do eixo coordenado Z
+#define LEGS_COLOR 0.55,0.27,0.07//cor das pernas da aranha
+#define LIGHT_COLOR_1 0.1687,0.5120,0.3193,1//cor da luz presente na cena
+#define LIGHT_COLOR_2 0.5,0.5,0.5,1//cor da luz utilizada no modelo de iluminacao ambiente
+#define FOG_COLOR 0.5,0.5,0.5,1//cor da nevoa
+#define FOG_DENSITY 0.2//densidade da nevoa
 
 #define LEG_1_P1 0.1,0.0,0.2//coodrdenadas do vertice 1 da perna 1
 #define LEG_1_P2 0.65,0.5,0.0//coodrdenadas do vertice 2 da perna 1

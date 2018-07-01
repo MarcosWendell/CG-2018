@@ -5,7 +5,7 @@
 #include <vector>
 
 /*
-Trabalho de computacao grafica parte 2 de:
+Trabalho de computacao grafica parte 3 de:
 	David Souza Rodrigues 4461180
 	Gabriel Toschi de Oliveira 9763039
 	Marcelo de Moraes Carvalho da Silva 9791048
@@ -51,8 +51,8 @@ int main(int argc, char *argv[]){
 
 	init();//inicializacao da cena
 	glutDisplayFunc(display);//definicao para a biblioteca GLUT qual funcao tratara do display da cena
-	glutKeyboardFunc(fog);
-	glutSpecialFunc(keyboard);//definicao para a biblioteca GLUT qual funcao tratara da entrada do teclado
+	glutKeyboardFunc(fog);//definicao para a biblioteca GLUT qual funcao tratara da entrada do teclado (tecla 'n')
+	glutSpecialFunc(keyboard);//definicao para a biblioteca GLUT qual funcao tratara da entrada do teclado (setas)
 	glutReshapeFunc(reshape);//definicao para a biblioteca GLUT qual funcao tratara do redimencionamento da janela
 
 	glutMainLoop();//inicializacao do loop principal da biblioteca GLUT
@@ -66,7 +66,6 @@ int main(int argc, char *argv[]){
 /**/
 void init(){
 	cv::Mat img;
-	glClearColor(CLEAR_COLOR);//definicao da cor de clear
 	glEnable(GL_DEPTH_TEST);//habilitando o buffer de profundidade
 	glDepthFunc(GL_LEQUAL);//definicao do valor utilizado para comparacao no buffer de profundidade
 	glMatrixMode(GL_PROJECTION);//inicializacao do modo da matriz como matriz de projecao
@@ -81,54 +80,52 @@ void init(){
 	center.y = 0.5;
 	center.z = 0;
 	lastDirection = CONTINUE;//inicializacao da direcao de animacao anterior
-	GLfloat postion_type0[] = {0,0,0,0};
-	GLfloat light_color0[] = {0.1687,0.5120,0.3193,1};
-	GLfloat light_color1[] = {0.5,0.5,0.5,1};
-	GLfloat directionVector[] = {-1,0,-1};
-	glLightfv(GL_LIGHT0,GL_POSITION,postion_type0);
-	glLightfv(GL_LIGHT0,GL_AMBIENT,light_color0);
-	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_color0);
-	glLightfv(GL_LIGHT0,GL_SPECULAR,light_color0);
-	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light_color1);
-	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-	glLineWidth(2);
-	GLfloat fog_color[] = {0.5, 0.5, 0.5, 1.0};
-	glFogfv(GL_FOG_COLOR,fog_color);
-	glFogi(GL_FOG_MODE,GL_EXP);
-	glFogf(GL_FOG_DENSITY, 0.2);
-	img = cv::imread("texture.jpg");
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
-	img = cv::imread("skin.jpg");
-	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, img.cols, img.rows, 1, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
-	img = cv::imread("skybox/zneg.jpg");
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	img = cv::imread("skybox/zpos.jpg");
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	img = cv::imread("skybox/xpos.jpg");
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	img = cv::imread("skybox/xneg.jpg");
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	img = cv::imread("skybox/ypos.jpg");
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	img = cv::imread("skybox/yneg.jpg");
-	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());
-	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_S,GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_T,GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_R,GL_REPEAT);
+	GLfloat light_position[] = {0,0,0,0};
+	GLfloat light_color1[] = {LIGHT_COLOR_1};
+	GLfloat light_color2[] = {LIGHT_COLOR_2};
+	glLightfv(GL_LIGHT0,GL_POSITION,light_position);//inicializacao da posicao da fonte de luz
+	glLightfv(GL_LIGHT0,GL_AMBIENT,light_color1);//inicializacao da cor de reflexao ambiente da luz
+	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_color1);//inicializacao da cor de reflexao difusa da luz
+	glLightfv(GL_LIGHT0,GL_SPECULAR,light_color1);//inicializacao da cor de reflexao especular da luz
+	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, light_color2);//inicializacao da cor a ser utilizada no modelo de iluminacao ambiente
+	glEnable(GL_COLOR_MATERIAL);//habilitando cor do material para calculo de iluminacao
+	glEnable(GL_LIGHTING);//habilitando iluminacao
+	glEnable(GL_LIGHT0);//habilitando fonte de luz 0
+	glLineWidth(2);//determinando largura das linhas a desenhar
+	GLfloat fog_color[] = {FOG_COLOR};
+	glFogfv(GL_FOG_COLOR,fog_color);//inicializacao da cor da neblina
+	glFogi(GL_FOG_MODE,GL_EXP);//inicializacao do modo de calculo da neblina
+	glFogf(GL_FOG_DENSITY, FOG_DENSITY);//inicializacao da densidade da neblina
+	img = cv::imread("floor.jpg");//leitura de imagem
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura 2D
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER, GL_LINEAR);//determinacao da funcao de minimizacao da textura 2D
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER, GL_LINEAR);//determinacao da funcao de maximizacao da textura 2D
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);//determinacao do mapeamento do paramentro s para textura 2D
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);//determinacao do mapeamento do paramentro t para textura 2D
+	img = cv::imread("skin.jpg");//leitura de imagem
+	glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, img.cols, img.rows, 1, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura 3D
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);//determinacao da funcao de minimizacao da textura 3D
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);//determinacao da funcao de maximizacao da textura 3D
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);//determinacao do mapeamento do paramentro s para textura 3D
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);//determinacao do mapeamento do paramentro t para textura 3D
+	glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);//determinacao do mapeamento do paramentro r para textura 3D
+	img = cv::imread("skybox/zneg.jpg");//leitura de imagem
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura z negativa do cube map
+	img = cv::imread("skybox/zpos.jpg");//leitura de imagem
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura z positiva do cube map
+	img = cv::imread("skybox/xpos.jpg");//leitura de imagem
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura x positiva do cube map
+	img = cv::imread("skybox/xneg.jpg");//leitura de imagem
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura x negativa do cube map
+	img = cv::imread("skybox/ypos.jpg");//leitura de imagem
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura y positiva do cube map
+	img = cv::imread("skybox/yneg.jpg");//leitura de imagem
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,0,GL_RGBA, img.cols, img.rows, 0, GL_BGR, GL_UNSIGNED_BYTE, img.ptr());//deteminacao da imagem a utilizar na textura y negativa do cube map
+	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MIN_FILTER,GL_LINEAR);//determinacao da funcao de minimizacao da textura cube map
+	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MAG_FILTER,GL_LINEAR);//determinacao da funcao de maximizacao da textura cube map
+	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_S,GL_REPEAT);//determinacao do mapeamento do paramentro s para textura cube map
+	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_T,GL_REPEAT);//determinacao do mapeamento do paramentro t para textura cube map
+	glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_R,GL_REPEAT);//determinacao do mapeamento do paramentro r para textura cube map
 }
 
 /**/
@@ -138,37 +135,45 @@ void init(){
 void display(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);//limpeza dos buffers de cor e de profundidade
 
-	glViewport(0,0,width/2,height);//definicao de uma viewport no canto inferior esquerdo da janela
+	glViewport(0,0,width/2,height);//definicao de uma viewport no canto esquerdo da janela
 	glLoadIdentity();//carregando a matriz identidade
 	gluLookAt(center.x+3,center.y+1,center.z-5,center.x,center.y,center.z,0,1,0);//definindo uma visao olhando a partir do eixo X
-	drawSky();
-	drawFloor();
+	drawSky();//desenhando o skybox
+	drawFloor();//desenhando o chao
 	drawSpider();//desenhando a aranha
 
-	glViewport(width/2,0,width/2,height);//definicao de uma viewport no canto superior esquerdo da janela
+	glViewport(width/2,0,width/2,height);//definicao de uma viewport no canto direito da janela
 	glLoadIdentity();//carregando a matriz identidade
 	gluLookAt(center.x-3,center.y+1,center.z-5,center.x,center.y,center.z,0,1,0);//definindo uma visao olhando a partir do eixo Y
-	drawSky();
-	drawFloor();
+	drawSky();//desenhando o skybox
+	drawFloor();//desenhando o chao
 	drawSpider();//desenhando a aranha
 
 	glutSwapBuffers();//troca do buffer de janela ativa
 }
 
+/**/
+//fog
+//funcao que trata a entrada do teclado (tecla 'n')
+//params:
+// - key: GLint, codigo da tecla pressionada
+// - x: GLint, posicao x do mouse quando a tecla foi pressionada
+// - y: GLint, posicao y do mouse quando a tecla foi pressionada
+/**/
 void fog(unsigned char key, int x, int y){
-	if(key == 'n'){
-		if(glIsEnabled(GL_FOG) == GL_TRUE)
-			glDisable(GL_FOG);
-		else
-			glEnable(GL_FOG);
-		glutPostRedisplay();
+	if(key == 'n'){//se a tecla 'n' for pressionada
+		if(glIsEnabled(GL_FOG) == GL_TRUE)//se a nevoa estiver ativada
+			glDisable(GL_FOG);//desativa
+		else//caso contrario
+			glEnable(GL_FOG);//ativa
+		glutPostRedisplay();//sinalizacao para a biblioteca GLUT para chamer a funcao que cuida do display
 	}
 
 }
 
 /**/
 //keyboard
-//funcao que trata a entrada do teclado
+//funcao que trata a entrada do teclado (setas)
 //params:
 // - key: GLint, codigo da tecla pressionada
 // - x: GLint, posicao x do mouse quando a tecla foi pressionada
@@ -214,26 +219,26 @@ void reshape(int nWidth,int nHeight){
 /**/
 void drawSpider(){
 	GLfloat color[4];
-	glGetFloatv(GL_CURRENT_COLOR,color);
+	glGetFloatv(GL_CURRENT_COLOR,color);//armazenando a cor anterior
 	GLUquadric *quadObj = gluNewQuadric();
 	glPushMatrix();//armazenando matriz atual
 	glTranslatef(center.x,center.y,center.z);//translacao para a posicao do centro da aranha
 	glRotatef(body_rotation,0,1,0);//rotacao da aranha em body_ratation graus em torno do eixo y
-	glEnable(GL_TEXTURE_3D);
+	glEnable(GL_TEXTURE_3D);//habilitando textura 3D
  	quadObj = gluNewQuadric();
 	gluQuadricTexture(quadObj, GL_TRUE);
-	glColor3f(SPIDER_COLOR_1);
+	glColor3f(SPIDER_COLOR_1);//definindo cor do cefalotorax da aranha
 	gluSphere(quadObj,0.25,10,10);//desenho do cefalotorax da aranha
 	gluDeleteQuadric(quadObj);
 	drawLegs();//desenhando as pernas da aranha
-	glTranslatef(-0.7,0,0);//traslacao para a posicao do abdomen da aranha em relacao ao cefalotorax da aranha
+	glTranslatef(-0.68,0,0);//traslacao para a posicao do abdomen da aranha em relacao ao cefalotorax da aranha
 	quadObj = gluNewQuadric();
 	gluQuadricTexture(quadObj, GL_TRUE);
-	glColor3f(SPIDER_COLOR_2);
+	glColor3f(SPIDER_COLOR_2);//definindo cor do abdomen da aranha
 	gluSphere(quadObj,0.45,10,10);//desenho do abdomen da aranha
 	gluDeleteQuadric(quadObj);
-	glDisable(GL_TEXTURE_3D);
-	glColor3f(color[0],color[1],color[2]);
+	glDisable(GL_TEXTURE_3D);//desabilitando textura 3D
+	glColor3f(color[0],color[1],color[2]);//recuperando a cor anterior
 	glPopMatrix();//recuperando a matriz anterior
 }
 
@@ -242,7 +247,7 @@ void drawSpider(){
 //funcao que desenha as pernas da aranha
 /**/
 void drawLegs(){
-	glColor3f(0.55,0.27,0.07);
+	glColor3f(LEGS_COLOR);
 	for(int i = 0; i < NUMBER_OF_LEGS; i++){//para cada perna da aranha
 		glPushMatrix();//aramazenando a matriz atual
 		for(int j = 0; j < NUMBER_OF_POINTS_PER_LEG - 1; j++){//para cada vertice da perna da aranha menos um
@@ -255,24 +260,31 @@ void drawLegs(){
 		}
 		glPopMatrix();//recuperando a matriz anterior
 	}
-	glColor3f(1,1,1);
 }
 
+/**/
+//drawFloor
+//funcao que desenha o chao
+/**/
 void drawFloor(){
-	glEnable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-		glTexCoord2f(0,1); glVertex3f(-FLOOR_SIZE,0,FLOOR_SIZE);
+	glEnable(GL_TEXTURE_2D);//habilitando textura 2D
+	glBegin(GL_QUADS);//desenhando o chao
+		glTexCoord2f(0,1); glVertex3f(-FLOOR_SIZE,0,FLOOR_SIZE);//vertices do quadrado que representa o chao e parametros para mapeamento da textura
 		glTexCoord2f(0,0); glVertex3f(-FLOOR_SIZE,0,-FLOOR_SIZE);
 		glTexCoord2f(1,0); glVertex3f(FLOOR_SIZE,0,-FLOOR_SIZE);
 		glTexCoord2f(1,1); glVertex3f(FLOOR_SIZE,0,FLOOR_SIZE);
 	glEnd();
-	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);//desabilitando textura 2D
 }
 
+/**/
+//drawSky
+//funcao que desenha o skybox
+/**/
 void drawSky(){
 	std::vector<point> POINTS;
 	point aux;
-	//1
+	//vertices da face traseira
 	aux.x = -SKYBOX_SIZE;
 	aux.y = SKYBOX_HEIGHT;
 	aux.z = -SKYBOX_SIZE;
@@ -289,7 +301,7 @@ void drawSky(){
 	aux.y = -SKYBOX_HEIGHT;
 	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	//2
+	//vertices da face dianteira
 	aux.x = -SKYBOX_SIZE;
 	aux.y = SKYBOX_HEIGHT;
 	aux.z = SKYBOX_SIZE;
@@ -306,59 +318,9 @@ void drawSky(){
 	aux.y = -SKYBOX_HEIGHT;
 	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
-	//3
+	//vertices da face direita
 	aux.x = SKYBOX_SIZE;
 	aux.y = SKYBOX_HEIGHT;
-	aux.z = SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.y = -SKYBOX_HEIGHT;
-	aux.z = SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = SKYBOX_SIZE;
-	aux.y = -SKYBOX_HEIGHT;
-	aux.z = -SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = SKYBOX_SIZE;
-	aux.y = SKYBOX_HEIGHT;
-	aux.z = -SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	//4
-	aux.x = -SKYBOX_SIZE;
-	aux.y = -SKYBOX_HEIGHT;
-	aux.z = SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = -SKYBOX_SIZE;
-	aux.y = SKYBOX_HEIGHT;
-	aux.z = SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = -SKYBOX_SIZE;
-	aux.y = SKYBOX_HEIGHT;
-	aux.z = -SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = -SKYBOX_SIZE;
-	aux.y = -SKYBOX_HEIGHT;
-	aux.z = -SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	//5
-	aux.x = -SKYBOX_SIZE;
-	aux.y = SKYBOX_HEIGHT;
-	aux.z = SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = SKYBOX_SIZE;
-	aux.y = SKYBOX_HEIGHT;
-	aux.z = SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = SKYBOX_SIZE;
-	aux.y = SKYBOX_HEIGHT;
-	aux.z = -SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	aux.x = -SKYBOX_SIZE;
-	aux.y = SKYBOX_HEIGHT;
-	aux.z = -SKYBOX_SIZE;
-	POINTS.push_back(aux);
-	//6
-	aux.x = -SKYBOX_SIZE;
-	aux.y = -SKYBOX_HEIGHT;
 	aux.z = SKYBOX_SIZE;
 	POINTS.push_back(aux);
 	aux.x = SKYBOX_SIZE;
@@ -369,19 +331,70 @@ void drawSky(){
 	aux.y = -SKYBOX_HEIGHT;
 	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	//vertices da face esquerda
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
+	POINTS.push_back(aux);
 	aux.x = -SKYBOX_SIZE;
 	aux.y = -SKYBOX_HEIGHT;
 	aux.z = -SKYBOX_SIZE;
 	POINTS.push_back(aux);
-
-	glEnable(GL_TEXTURE_CUBE_MAP);
-	glBegin(GL_QUADS);
+	//vertices da face do topo
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = -SKYBOX_SIZE;
+	aux.y = SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	//vertices da face de baixo
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	aux.x = -SKYBOX_SIZE;
+	aux.y = -SKYBOX_HEIGHT;
+	aux.z = -SKYBOX_SIZE;
+	POINTS.push_back(aux);
+	glEnable(GL_TEXTURE_CUBE_MAP);//habilitando textura cube map
+	glBegin(GL_QUADS);//desenhando o skybox
 	for(int i = 0; i < POINTS.size(); i++){
+		//vertices do hexaedro que representa o skybox e parametros para mapeamento da textura
 		glTexCoord3f(POINTS[i].x/SKYBOX_SIZE, POINTS[i].y/SKYBOX_HEIGHT, POINTS[i].z/SKYBOX_SIZE);
 		glVertex3f(POINTS[i].x, POINTS[i].y,POINTS[i].z);
 	}
 	glEnd();
-	glDisable(GL_TEXTURE_CUBE_MAP);
+	glDisable(GL_TEXTURE_CUBE_MAP);//desabilitando textura cube map
 }
 
 /**/
@@ -392,10 +405,10 @@ void drawSky(){
 /**/
 void translateSpider(GLfloat d){
 	GLfloat aux = center.x + orientation.x*d;
-	if(aux >= -FLOOR_SIZE + MARGIN && aux <= FLOOR_SIZE - MARGIN)
+	if(aux >= -FLOOR_SIZE + MARGIN && aux <= FLOOR_SIZE - MARGIN)//verificao da area de movimentacao da aranha
 		center.x = aux;//definicao da nova coordenada x do centro da aranha
 	aux = center.z + orientation.z*d;
-	if(aux >= -FLOOR_SIZE + MARGIN && aux <= FLOOR_SIZE - MARGIN)
+	if(aux >= -FLOOR_SIZE + MARGIN && aux <= FLOOR_SIZE - MARGIN)//verificao da area de movimentacao da aranha
 		center.z = aux;//definicao da nova coordenada z do centro da aranha
 	glutPostRedisplay();//sinalizacao para a biblioteca GLUT para chamer a funcao que cuida do display
 }
